@@ -11,7 +11,22 @@ Chat.prototype.sendMessage = function(room, text) {
         room: room,
         text: text
     };
+    console.log ('message:' + message.text);
     this.socket.emit('message', message);
+};
+
+Chat.prototype.sendmotion = function(room, x, y, z, a, b, g) {
+    var accePara = {
+        room: room,
+        accelerationX: x,
+        accelerationY: y,
+        accelerationZ: z,
+        rotationAlpha: a,
+        rotationBeta: b,
+        rotationGamma: g
+    };
+
+    this.socket.emit('motion', accePara);
 };
 
 Chat.prototype.changeRoom = function(room) {

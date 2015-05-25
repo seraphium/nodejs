@@ -29,6 +29,45 @@ function processUserInput(chatApp, socket) {
     $('#send-message').val('');
 }
 
+function processUserMotion(chatApp, socket)
+{
+    if(window.DeviceMotionEvent)
+    {
+        window.addEventListener("devicemotion", function(){
+            chatApp.sendmotion($('#room').text(), event.accelerationIncludingGravity.x,
+                event.accelerationIncludingGravity.y,
+                event.accelerationIncludingGravity.z,
+                event.rotationRate.alpha,
+                event.rotationRate.beta,
+                event.rotationRate.gamma
+             );
+        }, false);
+    }else{
+        console.log("DeviceMotionEvent is not supported");
+    }
+
+}
+
+var x = 0, y = 0,
+    vx = 0, vy = 0,
+    ax = 0, ay = 0;
+
+var sphere = document.getElementById("sphere");
+
+function boundingBoxCheck(){
+    if (x<0) { x = 0; vx = -vx; }
+    if (y<0) { y = 0; vy = -vy; }
+    if (x>document.documentElement.clientWidth-20) { x = document.documentElement.clientWidth-20; vx = -vx; }
+    if (y>document.documentElement.clientHeight-20) { y = document.documentElement.clientHeight-20; vy = -vy; }
+
+}
+
+function processSphere(message)
+{
+    ax = message.accelerationX * 5;
+    ay = message.accelerationY * 5;
+
+}
 var socket = io.connect();
 
 $(document).ready(function() {
@@ -55,6 +94,10 @@ $(document).ready(function() {
         $('#messages').append(newElement);
     });
 
+    socket.on('motion', function (message) {
+        processSphere(message);
+    });
+
     socket.on('rooms', function(rooms) {
         $('#room-list').empty();
         for (var room in rooms) {
@@ -78,5 +121,28 @@ $(document).ready(function() {
         processUserInput(chatApp, socket);
         return false;
     });
+
+    setInterval( function() {
+        var landscapeOrientation = window.innerWidth/window.innerHeight > 1;
+        if ( landscapeOrientation) {
+            vx = vx + ay;
+            vy = vy + ax;
+        } else {
+            vy = vy - ay;
+            vx = vx + ax;
+        }
+        vx = vx * 0.98;
+        vy = vy * 0.98;
+        y = parseInt(y + vy / 50);
+        x = parseInt(x + vx / 50);
+
+        boundingBoxCheck();
+
+        sphere.style.top = y + "px";
+        sphere.style.left = x + "px";
+
+    }, 25);
+
+    processUserMotion(chatApp, socket);
 
 });
