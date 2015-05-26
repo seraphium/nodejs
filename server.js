@@ -77,7 +77,6 @@ var server = http.createServer(function(request, response)
         filePath = 'public' + request.url;
     }
     var absPath = './' + filePath;
-    console.log("client fetch: " + absPath);
     serverStatic(response, cache, absPath);
 
 
