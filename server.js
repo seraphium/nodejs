@@ -74,9 +74,19 @@ var server = http.createServer(function(request, response)
     }
     else
     {
-        filePath = 'public' + request.url;
+        var url = require('url');
+        filePath = 'public' + url.parse(request.url).pathname;
+        var query = url.parse(request.url, true).query;
+        if (query != null)
+        {
+            var cid = query.cid;
+            console.log("Client connect to cid: " + cid );
+        }
+
     }
+
     var absPath = './' + filePath;
+    console.log('client retrieve path:' + absPath);
     serverStatic(response, cache, absPath);
 
 

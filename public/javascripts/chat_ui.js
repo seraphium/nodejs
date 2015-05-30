@@ -69,13 +69,15 @@ function processSphere(message)
 
 }
 var socket = io.connect();
+var client_id = 0;
 
 $(document).ready(function() {
     var chatApp = new Chat(socket);
 
-    socket.on('serverIp', function (result) {
-        var url = "http://"+result.ip+":3000";
-        jQuery('#qrcode').qrcode({width: 64,height: 64,text: url})
+    socket.on('serverIpId', function (result) {
+        var url = "http://" + result.ip + ":3000/client.html?cid=" + result.id;
+        $('#id').text("id:" + result.id);
+        jQuery('#qrcode').qrcode({width: 64, height: 64, text: url});
     });
 
     socket.on('nameResult', function(result) {
@@ -142,8 +144,12 @@ $(document).ready(function() {
         x = parseInt(x + vx / 50);
 
         boundingBoxCheck();
-        sphere.style.top = y + "px";
-        sphere.style.left = x + "px";
+        if (sphere != null)
+        {
+            sphere.style.top = y + "px";
+            sphere.style.left = x + "px";
+
+        }
 
 
     }, 25);
