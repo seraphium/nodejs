@@ -73,6 +73,11 @@ var socket = io.connect();
 $(document).ready(function() {
     var chatApp = new Chat(socket);
 
+    socket.on('serverIp', function (result) {
+        var url = "http://"+result.ip+":3000";
+        jQuery('#qrcode').qrcode({width: 64,height: 64,text: url})
+    });
+
     socket.on('nameResult', function(result) {
         var message;
 
@@ -137,9 +142,9 @@ $(document).ready(function() {
         x = parseInt(x + vx / 50);
 
         boundingBoxCheck();
-
         sphere.style.top = y + "px";
         sphere.style.left = x + "px";
+
 
     }, 25);
 
