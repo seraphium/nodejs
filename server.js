@@ -71,22 +71,23 @@ var server = http.createServer(function(request, response)
     var filePath = false;
     if (request.url == '/') {
         filePath = 'public/index.html';
+
     }
     else
     {
         var url = require('url');
         filePath = 'public' + url.parse(request.url).pathname;
         var query = url.parse(request.url, true).query;
-        if (query != null)
+        if (query.room != null)
         {
-            var cid = query.cid;
-            console.log("Client connect to cid: " + cid );
+            var room = query.room;
+
+            console.log("Client connect to room: " + room );
         }
 
     }
 
     var absPath = './' + filePath;
-    console.log('client retrieve path:' + absPath);
     serverStatic(response, cache, absPath);
 
 

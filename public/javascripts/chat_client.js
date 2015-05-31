@@ -1,4 +1,7 @@
 /**
+ * Created by jackiezhang on 15/5/31.
+ */
+/**
  * Created by jackiezhang on 15/5/24.
  */
 
@@ -40,7 +43,7 @@ function processUserMotion(chatApp, socket)
                 event.rotationRate.alpha,
                 event.rotationRate.beta,
                 event.rotationRate.gamma
-             );
+            );
         }, false);
     }else{
         console.log("DeviceMotionEvent is not supported");
@@ -73,41 +76,16 @@ var client_id = 0;
 
 $(document).ready(function() {
     var chatApp = new Chat(socket);
-   if (document.URL == 'http://localhost:3000/') //TODO: change to parse URL
-   {
-       chatApp.createRoom();
-   }
-    socket.on('serverIpRoom', function (result) {
-        var url = "http://" + result.ip + ":3000/client.html?room=" + result.room;
-        $('#id').text("room:" + result.room);
-        jQuery('#qrcode').qrcode({width: 64, height: 64, text: url});
-    });
+    var uri = window.location.search;
+    var urlAux = uri.split('=');
+    var room = urlAux[1]
 
-    socket.on('nameResult', function(result) {
-        var message;
-
-        if (result.success) {
-            message = 'You are now named as ' + result.name + '.';
-        } else {
-            message = result.message;
-        }
-        $('#messages').append(divSystemContentElement(message));
-    });
+    chatApp.changeRoom(room);
 
     socket.on('joinResult', function(result) {
         $('#room').text(result.room);
         $('#messages').append(divSystemContentElement('Room changed.'));
     });
-
-    socket.on('message', function (message) {
-       var newElement = $('<div></div>').text(message.text);
-        $('#messages').append(newElement);
-    });
-
-    socket.on('motion', function (message) {
-        processSphere(message);
-    });
-
     socket.on('rooms', function(rooms) {
         $('#room-list').empty();
         for (var room in rooms) {
@@ -132,30 +110,7 @@ $(document).ready(function() {
         return false;
     });
 
-    setInterval( function() {
-        var landscapeOrientation = window.innerWidth/window.innerHeight > 1;
-        if ( landscapeOrientation) {
-            vx = vx + ay;
-            vy = vy + ax;
-        } else {
-            vy = vy - ay;
-            vx = vx + ax;
-        }
-        vx = vx * 0.98;
-        vy = vy * 0.98;
-        y = parseInt(y + vy / 50);
-        x = parseInt(x + vx / 50);
 
-        boundingBoxCheck();
-        if (sphere != null)
-        {
-            sphere.style.top = y + "px";
-            sphere.style.left = x + "px";
-
-        }
-
-
-    }, 25);
 
     processUserMotion(chatApp, socket);
 

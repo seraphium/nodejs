@@ -15,6 +15,11 @@ Chat.prototype.sendMessage = function(room, text) {
     this.socket.emit('message', message);
 };
 
+Chat.prototype.createRoom = function()
+{
+    this.socket.emit('createRoom', "");
+}
+
 Chat.prototype.sendmotion = function(room, x, y, z, a, b, g) {
     var accePara = {
         room: room,
