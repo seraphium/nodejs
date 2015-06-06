@@ -63,11 +63,9 @@ var socket = io.connect();
 var client_id = 0;
 
 $(document).ready(function() {
-    var chatApp = new Chat(socket);
-   if (document.URL == 'http://localhost:3000/') //TODO: change to parse URL
-   {
-       chatApp.createRoom();
-   }
+
+    chatApp.createRoom();
+
     socket.on('serverIpRoom', function (result) {
         var url = "http://" + result.ip + ":3000/client.html?room=" + result.room;
         $('#id').text("room:" + result.room);
