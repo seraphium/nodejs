@@ -11,6 +11,11 @@ function divSystemContentElement(message) {
     return $('<div></div>').html('<i>' + message + '</i>');
 }
 
+function divNewSphere(id)
+{
+    return $('<div id="sphere' + id + '"></div>');
+}
+
 function processUserInput(chatApp, socket) {
     var message = $('#send-message').val();
     var systemMessage;
@@ -29,44 +34,30 @@ function processUserInput(chatApp, socket) {
     $('#send-message').val('');
 }
 
-function processUserMotion(chatApp, socket)
-{
-    if(window.DeviceMotionEvent)
-    {
-        window.addEventListener("devicemotion", function(){
-            chatApp.sendmotion($('#room').text(), event.accelerationIncludingGravity.x,
-                event.accelerationIncludingGravity.y,
-                event.accelerationIncludingGravity.z,
-                event.rotationRate.alpha,
-                event.rotationRate.beta,
-                event.rotationRate.gamma
-             );
-        }, false);
-    }else{
-        console.log("DeviceMotionEvent is not supported");
-    }
+var client = {};
+var sphereNum = 0;
+var x = [], y = [],
+    vx = [], vy = [],
+    ax = [], ay = [], landscape = [];
 
-}
 
-var x = 0, y = 0,
-    vx = 0, vy = 0,
-    ax = 0, ay = 0;
 
-var sphere = document.getElementById("sphere");
-
-function boundingBoxCheck(){
-    if (x<0) { x = 0; vx = -vx; }
-    if (y<0) { y = 0; vy = -vy; }
-    if (x>document.documentElement.clientWidth-20) { x = document.documentElement.clientWidth-20; vx = -vx; }
-    if (y>document.documentElement.clientHeight-20) { y = document.documentElement.clientHeight-20; vy = -vy; }
+function boundingBoxCheck(id){
+    if (x[id]<0) { x[id] = 0; vx[id] = -vx[id]; }
+    if (y[id]<0) { y[id] = 0; vy[id] = -vy[id]; }
+    if (x[id]>document.documentElement.clientWidth-20)
+        { x[id] = document.documentElement.clientWidth-20; vx[id] = -vx[id]; }
+    if (y[id]>document.documentElement.clientHeight-20)
+        { y[id] = document.documentElement.clientHeight-20; vy[id] = -vy[id]; }
 
 }
 
 function processSphere(message)
 {
-    ax = message.accelerationX * 5;
-    ay = message.accelerationY * 5;
-
+    var socketid = message.socketid;
+    ax[client[socketid]] = message.accelerationX * 5;
+    ay[client[socketid]] = message.accelerationY * 5;
+    landscape[client[socketid]] = message.landscape;
 }
 var socket = io.connect();
 var client_id = 0;
@@ -98,7 +89,19 @@ $(document).ready(function() {
         $('#room').text(result.room);
         $('#messages').append(divSystemContentElement('Room changed.'));
     });
+    socket.on('clientJoined', function(result) {
+        client[result.socketid] = sphereNum;
+        $('#grid').append(divNewSphere(sphereNum));
+        x[sphereNum] = 0;
+        y[sphereNum] = 0;
+        vx[sphereNum] = 0;
+        vy[sphereNum] = 0;
+        ax[sphereNum] = 0;
+        ay[sphereNum] = 0;
 
+        sphereNum ++;
+
+    });
     socket.on('message', function (message) {
        var newElement = $('<div></div>').text(message.text);
         $('#messages').append(newElement);
@@ -133,30 +136,35 @@ $(document).ready(function() {
     });
 
     setInterval( function() {
-        var landscapeOrientation = window.innerWidth/window.innerHeight > 1;
-        if ( landscapeOrientation) {
-            vx = vx + ay;
-            vy = vy + ax;
-        } else {
-            vy = vy - ay;
-            vx = vx + ax;
-        }
-        vx = vx * 0.98;
-        vy = vy * 0.98;
-        y = parseInt(y + vy / 50);
-        x = parseInt(x + vx / 50);
-
-        boundingBoxCheck();
-        if (sphere != null)
+        for (var key in client)
         {
-            sphere.style.top = y + "px";
-            sphere.style.left = x + "px";
+            var sphereid = client[key];
+            if (landscape[sphereid]) {
+                vx[sphereid] = vx[sphereid] + ay[sphereid];
+                vy[sphereid] = vy[sphereid] + ax[sphereid];
+            } else {
+                vy[sphereid] = vy[sphereid] - ay[sphereid];
+                vx[sphereid] = vx[sphereid] + ax[sphereid];
+            }
+            vx[sphereid] = vx[sphereid] * 0.98;
+            vy[sphereid] = vy[sphereid] * 0.98;
+            y[sphereid] = parseInt(y[sphereid] + vy[sphereid] / 50);
+            x[sphereid] = parseInt(x[sphereid] + vx[sphereid] / 50);
 
+            boundingBoxCheck(sphereid);
+            var sphere = document.getElementById("sphere" + sphereid);
+            if (sphere != null)
+            {
+                sphere.style.top = y + "px";
+                sphere.style.left = x + "px";
+
+            }
         }
+
+
 
 
     }, 25);
 
-    processUserMotion(chatApp, socket);
 
 });

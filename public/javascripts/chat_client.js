@@ -37,12 +37,13 @@ function processUserMotion(chatApp, socket)
     if(window.DeviceMotionEvent)
     {
         window.addEventListener("devicemotion", function(){
-            chatApp.sendmotion($('#room').text(), event.accelerationIncludingGravity.x,
+            chatApp.sendmotion($('#room').text(), socket.id,event.accelerationIncludingGravity.x,
                 event.accelerationIncludingGravity.y,
                 event.accelerationIncludingGravity.z,
                 event.rotationRate.alpha,
                 event.rotationRate.beta,
-                event.rotationRate.gamma
+                event.rotationRate.gamma,
+                window.innerWidth/window.innerHeight > 1
             );
         }, false);
     }else{

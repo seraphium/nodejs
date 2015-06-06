@@ -20,15 +20,17 @@ Chat.prototype.createRoom = function()
     this.socket.emit('createRoom', "");
 }
 
-Chat.prototype.sendmotion = function(room, x, y, z, a, b, g) {
+Chat.prototype.sendmotion = function(room, id, x, y, z, a, b, g, landscape) {
     var accePara = {
         room: room,
+        socketid: id,
         accelerationX: x,
         accelerationY: y,
         accelerationZ: z,
         rotationAlpha: a,
         rotationBeta: b,
-        rotationGamma: g
+        rotationGamma: g,
+        landscape: landscape
     };
 
     this.socket.emit('motion', accePara);
