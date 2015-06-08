@@ -68,6 +68,15 @@ a {
     margin-right: 1em;
 }
 
+#toggle {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 200px;
+    -webkit-radius: 200px;
+    background-color: yellow;
+}
+
 #help {
     font: 10px "Lucia Grande", Helvetica, Arial, sans-serif;
 }

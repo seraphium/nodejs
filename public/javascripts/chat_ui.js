@@ -59,6 +59,30 @@ function processSphere(message)
     ay[client[socketid]] = message.accelerationY * 5;
     landscape[client[socketid]] = message.landscape;
 }
+
+function updateSphere(sphereid)
+{
+    if (landscape[sphereid]) {
+        vx[sphereid] = vx[sphereid] + ay[sphereid];
+        vy[sphereid] = vy[sphereid] + ax[sphereid];
+    } else {
+        vy[sphereid] = vy[sphereid] - ay[sphereid];
+        vx[sphereid] = vx[sphereid] + ax[sphereid];
+    }
+    vx[sphereid] = vx[sphereid] * 0.98;
+    vy[sphereid] = vy[sphereid] * 0.98;
+    y[sphereid] = parseInt(y[sphereid] + vy[sphereid] / 50);
+    x[sphereid] = parseInt(x[sphereid] + vx[sphereid] / 50);
+
+    boundingBoxCheck(sphereid);
+    var sphere = document.getElementById("sphere" + sphereid);
+    if (sphere != null)
+    {
+        sphere.style.top = y[sphereid] + "px";
+        sphere.style.left = x[sphereid] + "px";
+
+    }
+}
 var socket = io.connect();
 var client_id = 0;
 
@@ -69,7 +93,7 @@ $(document).ready(function() {
     socket.on('serverIpRoom', function (result) {
         var url = "http://" + result.ip + ":3000/client.html?room=" + result.room;
         $('#id').text("room:" + result.room);
-        jQuery('#qrcode').qrcode({width: 64, height: 64, text: url});
+        jQuery('#qrcode').qrcode({width: 128, height: 128, text: url});
     });
 
     socket.on('nameResult', function(result) {
@@ -137,26 +161,7 @@ $(document).ready(function() {
         for (var key in client)
         {
             var sphereid = client[key];
-            if (landscape[sphereid]) {
-                vx[sphereid] = vx[sphereid] + ay[sphereid];
-                vy[sphereid] = vy[sphereid] + ax[sphereid];
-            } else {
-                vy[sphereid] = vy[sphereid] - ay[sphereid];
-                vx[sphereid] = vx[sphereid] + ax[sphereid];
-            }
-            vx[sphereid] = vx[sphereid] * 0.98;
-            vy[sphereid] = vy[sphereid] * 0.98;
-            y[sphereid] = parseInt(y[sphereid] + vy[sphereid] / 50);
-            x[sphereid] = parseInt(x[sphereid] + vx[sphereid] / 50);
-
-            boundingBoxCheck(sphereid);
-            var sphere = document.getElementById("sphere" + sphereid);
-            if (sphere != null)
-            {
-                sphere.style.top = y + "px";
-                sphere.style.left = x + "px";
-
-            }
+            updateSphere(sphereid);
         }
 
 
