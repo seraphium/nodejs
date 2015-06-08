@@ -63,7 +63,7 @@ var socket = io.connect();
 var client_id = 0;
 
 $(document).ready(function() {
-
+    var chatApp = new Chat(socket);
     chatApp.createRoom();
 
     socket.on('serverIpRoom', function (result) {
